@@ -1,0 +1,23 @@
+name: Start Railway Bot
+
+on:
+  schedule:
+    # 11:00 UTC = 08:00 BRT (horário de Brasília, UTC-3)
+    - cron: '0 11 * * *'
+  workflow_dispatch: {} # permite rodar manualmente também
+
+jobs:
+  start-service:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Railway redeploy (start)
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+        run: |
+          curl --request POST \
+            --url https://backboard.railway.com/graphql/v2 \
+            --header "Authorization: Bearer $RAILWAY_API_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data '{
+              "query": "mutation { serviceInstanceRedeploy(serviceId: \"f6bcfdb1-96e6-47d8-85d2-986977a68dac\", environmentId: \"910f5d26-f005-4426-95b4-2d65f866269c\") }"
+            }'
